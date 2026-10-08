@@ -1,26 +1,499 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-*: initial;
+  --color-cream: #fff9f6;
+  --color-blush: #f6d6de;
+  --color-blush-deep: #efc3d0;
+  --color-rose: #d98ba3;
+  --color-deep-rose: #a84d6b;
+  --color-rose-ink: #8e3a57;
+  --color-sand: #eadfd7;
+  --color-mauve: #4a3040;
+  --color-mauve-soft: #6e5060;
+  --color-sage: #4f6b4f;
+  --color-error: #a3303a;
+  --color-white: #ffffff;
+  /* WhatsApp button only. White text on it is 4.25:1, so labels must stay large (19px bold+). */
+  --color-whatsapp: #1a8d47;
+  --color-whatsapp-deep: #146e37;
+  /* Footer social button borders on mauve (7.17:1). */
+  --color-mauve-line: #d9c5ce;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-*: initial;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-serif--font-variation-settings: "SOFT" 100, "WONK" 0;
+  --font-accent: var(--font-fraunces-italic), var(--font-fraunces), Georgia, serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Fluid between 360px and 1280px viewports. */
+  --text-*: initial;
+  --text-display: clamp(2.5rem, 1.717rem + 3.478vw, 4.5rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.015em;
+  --text-h1: clamp(2rem, 1.511rem + 2.174vw, 3.25rem);
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.01em;
+  --text-h2: clamp(1.625rem, 1.332rem + 1.304vw, 2.375rem);
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.005em;
+  --text-h3: clamp(1.25rem, 1.152rem + 0.435vw, 1.5rem);
+  --text-h3--line-height: 1.25;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-micro: 0.8125rem;
+  --text-micro--line-height: 1.4;
+
+  --radius-*: initial;
+  --radius-card: 20px;
+  --radius-image: 16px;
+  --radius-field: 12px;
+
+  --shadow-*: initial;
+  --shadow-lift: 0 1px 2px rgb(74 48 64 / 0.06), 0 14px 30px -10px rgb(74 48 64 / 0.22);
+  --shadow-pop: 0 6px 18px -6px rgb(74 48 64 / 0.28);
+  --shadow-menu: 0 28px 48px -20px rgb(74 48 64 / 0.24);
+
+  --ease-*: initial;
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-spin: spin 0.9s linear infinite;
+  --animate-heart-pop: heart-pop 0.45s var(--ease-soft);
+  --animate-ring-burst: ring-burst 0.55s var(--ease-soft) forwards;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes heart-pop {
+    0% {
+      transform: scale(1);
+    }
+    35% {
+      transform: scale(1.32);
+    }
+    65% {
+      transform: scale(0.92);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes ring-burst {
+    0% {
+      opacity: 0.9;
+      transform: scale(0.4);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.7);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .29 0 0 0 0 .19 0 0 0 0 .25 .16 0 0 0 -.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --focus-ring: var(--color-rose-ink);
+  --bottom-nav-h: 56px;
+  /* WhatsApp button: height and its distance from the viewport bottom and right edge.
+     The footer reserves --wa-btn-h + --wa-btn-offset + 16px so the docked button never covers it. */
+  --wa-btn-h: 58px;
+  --wa-btn-offset: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom));
+  --wa-btn-right: 16px;
+  color-scheme: light;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --wa-btn-h: 64px;
+    --wa-btn-offset: 32px;
+    --wa-btn-right: 32px;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    background-image: var(--grain);
+    color: var(--color-mauve);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-variation-settings: var(--font-serif--font-variation-settings);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-weight: 500;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-blush-deep);
+    color: var(--color-mauve);
+  }
+}
+
+@utility grain {
+  background-image: var(--grain);
+}
+
+@utility page-x {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+
+  @variant sm {
+    padding-inline: 1.5rem;
+  }
+  @variant lg {
+    padding-inline: 2rem;
+  }
+}
+
+/* Horizontal rails: hide the scrollbar but keep native touch scrolling. */
+@utility rail {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  & > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+}
+
+@utility edge-fade {
+  mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 28px), transparent 100%);
+}
+
+/*
+ * Arch: horizontal radius is 50% of the width, vertical radius is half the
+ * width expressed as a percentage of the height, so the top is a true semicircle.
+ */
+@utility arch {
+  border-radius: 50% 50% var(--radius-image) var(--radius-image) / var(--arch-ry, 37.5%) var(--arch-ry, 37.5%) var(--radius-image) var(--radius-image);
+}
+
+/* Stretched link: the name link's ::after covers the whole card. */
+@utility stretched-link {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+}
+
+/* Header panels fade and slide 8px; display is transitioned so closing animates too. */
+.mega-panel {
+  transition:
+    opacity 0.24s var(--ease-soft),
+    translate 0.24s var(--ease-soft),
+    display 0.24s allow-discrete;
+}
+.mega-panel[hidden] {
+  display: none;
+  opacity: 0;
+  translate: 0 -8px;
+}
+@starting-style {
+  .mega-panel:not([hidden]) {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+
+.slogan-track {
+  animation: slogan-scroll 36s linear infinite;
+}
+.slogan-band:hover .slogan-track {
+  animation-play-state: paused;
+}
+@keyframes slogan-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-animate {
+  transition: transform 0.6s ease-in-out;
+}
+
+.arch-intro {
+  animation: arch-rise 1.25s var(--ease-soft) both;
+}
+
+.arch-intro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.42) 50%, transparent 65%);
+  transform: translateX(-110%);
+  animation: arch-sheen 1.3s var(--ease-soft) 1s both;
+}
+
+@keyframes arch-rise {
+  from {
+    clip-path: inset(38% 0 0 0 round 50% 50% 0 0 / var(--arch-ry, 37.5%) var(--arch-ry, 37.5%) 0 0);
+    transform: scale(1.08);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0);
+    transform: scale(1);
+  }
+}
+
+@keyframes arch-sheen {
+  from {
+    transform: translateX(-110%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(110%);
+    opacity: 1;
+  }
+}
+
+/*
+ * Scroll reveal for product grids. Pure CSS, so nothing is hidden before
+ * hydration, and items already in view at load are past the range and fully shown.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal > * {
+      --col: 0;
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--col) * 8%) entry calc(70% + var(--col) * 8%);
+    }
+    .reveal > :nth-child(2n) {
+      --col: 1;
+    }
+    @media (min-width: 64rem) {
+      .reveal > :nth-child(4n + 1) {
+        --col: 0;
+      }
+      .reveal > :nth-child(4n + 2) {
+        --col: 1;
+      }
+      .reveal > :nth-child(4n + 3) {
+        --col: 2;
+      }
+      .reveal > :nth-child(4n) {
+        --col: 3;
+      }
+    }
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * About page. Static styles are the final state, so everything is fully visible without
+ * JavaScript, without scroll-timeline support and under reduced motion.
+ */
+
+/* Journey: faint track, rose segments, filled dots. */
+.journey {
+  position: relative;
+}
+.journey::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 11px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-sand);
+}
+.journey-dot {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-deep-rose);
+  background: var(--color-deep-rose);
+  box-shadow: 0 0 0 4px var(--color-cream);
+}
+.journey-segment {
+  position: absolute;
+  top: 28px;
+  bottom: -4px;
+  left: 11px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-rose);
+  transform-origin: top;
+}
+
+/* Behind the scenes: hand-scattered prints that straighten a little on hover. */
+.collage-print {
+  rotate: var(--tilt, 0deg);
+  transition: rotate 0.4s var(--ease-soft);
+}
+@media (hover: hover) {
+  .collage-item:hover .collage-print {
+    rotate: calc(var(--tilt, 0deg) * 0.3);
+  }
+}
+
+/* Signature: inlined SVG paths with pathLength="1". */
+.signature-draw :is(path, line, polyline, circle, ellipse) {
+  fill: none;
+  stroke: currentColor;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /*
+     * A 1%-tall band 40% down the viewport acts as the reading line. Each segment draws as its
+     * milestone crosses the band, and each dot fills as the band reaches it.
+     */
+    .journey-segment {
+      animation: journey-draw linear both;
+      animation-timeline: view(block 40% 59%);
+    }
+    .journey-dot {
+      animation: journey-dot linear both;
+      animation-timeline: view(block 40% 59%);
+      animation-range: entry 0% exit 0%;
+    }
+    .journey-card {
+      animation: reveal-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+
+    /* Team grid on desktop: same reveal and column stagger as product grids (3 columns). */
+    @media (min-width: 64rem) {
+      .reveal-lg > * {
+        --col: 0;
+        animation: reveal-up linear both;
+        animation-timeline: view();
+        animation-range: entry calc(var(--col) * 8%) entry calc(70% + var(--col) * 8%);
+      }
+      .reveal-lg > :nth-child(3n + 2) {
+        --col: 1;
+      }
+      .reveal-lg > :nth-child(3n) {
+        --col: 2;
+      }
+    }
+
+    .collage-item {
+      animation: collage-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+
+    .signature-draw :is(path, line, polyline, circle, ellipse) {
+      animation: signature-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 40% cover 55%;
+    }
+  }
+}
+
+@keyframes journey-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes journey-dot {
+  from {
+    background: var(--color-cream);
+    border-color: var(--color-rose);
+  }
+  to {
+    background: var(--color-deep-rose);
+    border-color: var(--color-deep-rose);
+  }
+}
+
+/* The print starts straight and settles into its tilt (the inner figure carries the tilt). */
+@keyframes collage-settle {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+    rotate: calc(var(--tilt, 0deg) * -1);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+
+@keyframes signature-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .arch-intro::after {
+    display: none;
+  }
+  .slogan-track {
+    animation: none !important;
+  }
 }
